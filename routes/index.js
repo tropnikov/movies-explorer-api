@@ -8,6 +8,6 @@ const notFoundRoute = require('./notFound');
 router.use(authRoutes);
 router.use('/users', authUser, usersRoutes);
 router.use('/movies', authUser, moviesRoutes);
-router.use(notFoundRoute);
+router.use(authUser, notFoundRoute);
 
 module.exports = router;
