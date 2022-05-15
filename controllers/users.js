@@ -72,12 +72,6 @@ module.exports.updateProfile = (req, res, next) => {
     email,
   } = req.body;
   const id = req.user._id;
-  User.findOne({ email })
-    .then((user) => {
-      if (user && (user._id).toString() !== id) {
-        throw new ConflictError(CONFLICT_ALREADY_EXIST);
-      }
-    });
   User.findByIdAndUpdate(
     id,
     {
@@ -99,6 +93,8 @@ module.exports.updateProfile = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ValidationError(VALIDATION_INVALID_USER_DATA));
+      } else if (err.code === 11000) {
+        next(new ConflictError(CONFLICT_ALREADY_EXIST));
       }
       return next(err);
     });
