@@ -1,4 +1,3 @@
-// const BAD_REQUEST_CODE = 400;
 const UNAUTHORIZED_MSG = 'Необходима авторизация';
 const UNAUTHORIZED_INCORRECT_CREDENTIALS_MSG = 'Неправильные почта или пароль';
 const FORBIDDEN_MSG = 'Чужие фильмы удалять нельзя';
