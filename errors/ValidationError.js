@@ -1,4 +1,4 @@
-const { BAD_REQUEST_CODE } = require('./errorCodes');
+const { BAD_REQUEST_CODE } = require('../constants/errorCodes');
 
 class ValidationError extends Error {
   constructor(message) {

@@ -9,6 +9,7 @@ const limiter = require('./middlewares/limiter');
 const errorHandler = require('./middlewares/errorHandler');
 const { requestLogger, errorLogger } = require('./middlewares/loggers');
 const routes = require('./routes/index');
+const { DB_ADDRESS_DEV } = require('./constants/dbAddress');
 
 const { PORT = 3000, NODE_ENV, MONGODB_ADDRESS } = process.env;
 
@@ -41,7 +42,7 @@ async function main() {
     await mongoose.connect(
       NODE_ENV === 'production'
         ? MONGODB_ADDRESS
-        : 'mongodb://localhost:27017/beatfilmsdev',
+        : DB_ADDRESS_DEV,
     );
     app.listen(PORT, () => {
       console.log(`App listening on port ${PORT}`);
