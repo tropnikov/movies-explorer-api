@@ -39,7 +39,7 @@ app.use(errorHandler);
 async function main() {
   try {
     await mongoose.connect(
-      NODE_ENV === 'production' ? MONGODB_ADDRESS : DB_ADDRESS_DEV
+      NODE_ENV === 'production' ? MONGODB_ADDRESS : DB_ADDRESS_DEV,
     );
     app.listen(PORT, () => {
       console.log(`App listening on port ${PORT}`);
