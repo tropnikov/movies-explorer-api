@@ -1,7 +1,4 @@
-const {
-  NODE_ENV,
-  SECRET_KEY,
-} = process.env;
+const { NODE_ENV, SECRET_KEY } = process.env;
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const {
@@ -22,41 +19,51 @@ module.exports.getProfile = (req, res, next) => {
   const id = req.user._id;
   User.findById(id)
     .orFail(() => {
-      throw new NotFoundError(
-        NOT_FOUND_USER_MSG,
-      );
+      throw new NotFoundError(NOT_FOUND_USER_MSG);
     })
-    .then((user) => res.status(200)
-      .send(user))
+    .then((user) => res.status(200).send(user))
     .catch((err) => next(err));
 };
 
 module.exports.createUser = (req, res, next) => {
-  const {
-    name,
-    email,
-    password,
-  } = req.body;
+  const { name, email, password } = req.body;
 
   User.findOne({ email })
     .then((user) => {
       if (user) {
-        throw new ConflictError(
-          CONFLICT_ALREADY_EXIST,
-        );
+        throw new ConflictError(CONFLICT_ALREADY_EXIST);
       }
       return bcrypt.hash(password, 10);
     })
-    .then((hash) => User.create({
-      name,
-      email,
-      password: hash,
-    }))
+    .then((hash) =>
+      User.create({
+        name,
+        email,
+        password: hash,
+      })
+    )
     .then((user) => {
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? SECRET_KEY : 'super-duper-secret',
+        {
+          expiresIn: '7d',
+        }
+      );
       const userWithoutPass = user.toObject();
       delete userWithoutPass.password;
-      res.status(201)
+
+      // res.
+      res
+        .cookie('token', token, {
+          maxAge: 3600000 * 24 * 7,
+          httpOnly: true,
+          sameSite: true,
+          secure: true,
+        })
+        .status(200)
         .send(userWithoutPass);
+      // .json({ message: SUCCESS_USER_AUTHORIZED });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -67,10 +74,7 @@ module.exports.createUser = (req, res, next) => {
 };
 
 module.exports.updateProfile = (req, res, next) => {
-  const {
-    name,
-    email,
-  } = req.body;
+  const { name, email } = req.body;
   const id = req.user._id;
   User.findByIdAndUpdate(
     id,
@@ -81,15 +85,12 @@ module.exports.updateProfile = (req, res, next) => {
     {
       new: true,
       runValidators: true,
-    },
+    }
   )
     .orFail(() => {
-      throw new NotFoundError(
-        NOT_FOUND_USER_MSG,
-      );
+      throw new NotFoundError(NOT_FOUND_USER_MSG);
     })
-    .then((user) => res.status(200)
-      .send(user))
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ValidationError(VALIDATION_INVALID_USER_DATA));
@@ -101,10 +102,7 @@ module.exports.updateProfile = (req, res, next) => {
 };
 
 module.exports.login = (req, res, next) => {
-  const {
-    email,
-    password,
-  } = req.body;
+  const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
@@ -113,15 +111,21 @@ module.exports.login = (req, res, next) => {
         NODE_ENV === 'production' ? SECRET_KEY : 'super-duper-secret',
         {
           expiresIn: '7d',
-        },
+        }
       );
+      const userWithoutPass = user.toObject();
+      delete userWithoutPass.password;
+
       return res
         .cookie('token', token, {
           maxAge: 3600000 * 24 * 7,
           httpOnly: true,
           sameSite: true,
+          secure: true,
         })
-        .json({ message: SUCCESS_USER_AUTHORIZED });
+        .status(200)
+        .send(userWithoutPass);
+      // .json({ message: SUCCESS_USER_AUTHORIZED });
     })
     .catch(() => {
       next(new UnauthorizedError(UNAUTHORIZED_INCORRECT_CREDENTIALS_MSG));
@@ -134,6 +138,7 @@ module.exports.logout = (req, res) => {
     .clearCookie('token', {
       httpOnly: true,
       sameSite: true,
+      secure: true,
     })
     .json({ message: SUCCESS_USER_LOGOUT });
 };
