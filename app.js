@@ -1,10 +1,11 @@
 require('dotenv').config();
 const { errors } = require('celebrate');
 const cookieParser = require('cookie-parser');
-// const cors = require('cors');
+const cors = require('cors');
 const express = require('express');
 const helmet = require('helmet');
 const mongoose = require('mongoose');
+const corsOptions = require('./middlewares/corsOptions');
 const limiter = require('./middlewares/limiter');
 const errorHandler = require('./middlewares/errorHandler');
 const { requestLogger, errorLogger } = require('./middlewares/loggers');
@@ -17,9 +18,7 @@ const app = express();
 
 app.use(express.json());
 
-// app.use(
-//   cors(corsOptions),
-// );
+app.use(cors(corsOptions));
 
 app.use(requestLogger);
 app.use(helmet());
@@ -40,9 +39,7 @@ app.use(errorHandler);
 async function main() {
   try {
     await mongoose.connect(
-      NODE_ENV === 'production'
-        ? MONGODB_ADDRESS
-        : DB_ADDRESS_DEV,
+      NODE_ENV === 'production' ? MONGODB_ADDRESS : DB_ADDRESS_DEV,
     );
     app.listen(PORT, () => {
       console.log(`App listening on port ${PORT}`);
