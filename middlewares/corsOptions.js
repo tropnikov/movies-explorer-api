@@ -1,7 +1,7 @@
 const corsOptions = {
   origin: [
-    'https://tma.beatfilms.nomoredomains.rocks',
-    'http://tma.beatfilms.nomoredomains.rocks',
+    'https://movies-explorer.tropnikov.dev',
+    'http://movies-explorer.tropnikov.dev',
     'localhost:3000',
     'http://localhost:3000',
     'http://localhost:3001',
