@@ -1,7 +1,8 @@
 const corsOptions = {
   origin: [
     'https://tropnikov.dev',
-    'https://tropnikov-movies-explorer.vercel.app/',
+    'https://tropnikov-movies-explorer.vercel.app',
+    'http://tropnikov-movies-explorer.vercel.app',
     'localhost:3000',
     'http://localhost:3000',
     'http://localhost:3001',
